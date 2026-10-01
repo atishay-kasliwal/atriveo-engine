@@ -7,12 +7,15 @@ import type { SourceContext, SourceResult } from "./types.ts";
 /** Company boards found by scripts/discover-companies.ts, bundled into the binary. */
 export const BUNDLED_BOARDS: readonly CompanyBoard[] = companiesJson as CompanyBoard[];
 
+export const boardKey = (board: Pick<CompanyBoard, "ats" | "token">) =>
+  `${board.ats}:${board.token.toLowerCase()}`;
+
 /** Bundled boards (unless turned off) plus the user's, without duplicates. */
 export function boardsFor(config: Pick<EngineConfig, "companies" | "useBundledCompanies">): CompanyBoard[] {
   const seen = new Set<string>();
   const out: CompanyBoard[] = [];
   for (const board of [...config.companies, ...(config.useBundledCompanies ? BUNDLED_BOARDS : [])]) {
-    const key = `${board.ats}:${board.token.toLowerCase()}`;
+    const key = boardKey(board);
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(board);
@@ -68,14 +71,15 @@ export async function fetchBoards(
     ctx.boards,
     ctx.concurrency,
     async (board) => {
+      const key = boardKey(board);
       try {
-        result.postings.push(...(await fetchOne(board)));
+        for (const posting of await fetchOne(board)) result.postings.push({ ...posting, board: key });
       } catch (e) {
         if (ctx.signal.aborted) throw ctx.signal.reason;
         if (e instanceof HttpError && e.status === 404) {
           result.warnings.push(`${board.name}: no ${board.ats} board "${board.token}"`);
         } else {
-          result.failed.push({ company: board.name, error: (e as Error).message });
+          result.failed.push({ board: key, company: board.name, error: (e as Error).message });
         }
       }
     },

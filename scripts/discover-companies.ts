@@ -4,116 +4,20 @@
 //   bun scripts/discover-companies.ts
 //
 // A maintainer runs this now and then and commits the result; CI never does.
-// Matching is by board token guessed from the company name, so it is a
-// heuristic: Greenhouse boards are confirmed by the name they report. Lever and
-// Ashby boards report no name, so at least a third of their postings must
-// mention the company (a "linkedin" Lever board belongs to someone else).
-// Anything missed can be added with `atriveo companies add <careers-url>`.
+// Matching is a heuristic (see src/sources/discover.ts). Anything it misses
+// can be added with `atriveo companies add <careers-url>`.
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { normalizeCompany } from "../src/core/company.ts";
-import { Http, HttpError, mapPool } from "../src/sources/http.ts";
+import { discoverBoard } from "../src/sources/discover.ts";
+import { Http, mapPool } from "../src/sources/http.ts";
 import type { AtsId, CompanyBoard } from "../src/types.ts";
 
 const ROOT = join(import.meta.dir, "..");
-const http = new Http({ retries: 2 });
-const signal = new AbortController().signal;
-
-/** Trailing words a company often leaves out of its board token ("Scale AI" → "scale"). */
-const DROPPABLE_TAIL = new Set(["ai", "labs", "lab", "hq", "io", "ml", "app"]);
-
-export function slugCandidates(company: string): string[] {
-  const plain = company
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9\s]/g, " ")
-    .split(/\s+/)
-    .filter(Boolean);
-  const stripped = normalizeCompany(company).split(" ").filter(Boolean);
-  const out = new Set<string>();
-  for (const words of [plain, stripped]) {
-    if (!words.length) continue;
-    out.add(words.join(""));
-    out.add(words.join("-"));
-    if (words.length > 1 && DROPPABLE_TAIL.has(words[words.length - 1] as string)) {
-      out.add(words.slice(0, -1).join(""));
-      out.add(words.slice(0, -1).join("-"));
-    }
-  }
-  return [...out].filter((s) => s.length >= 3);
-}
-
-/** True when enough postings name the company, for boards that don't report a name. */
-function mentionsCompany(texts: string[], company: string): boolean {
-  const word = normalizeCompany(company)
-    .split(" ")
-    .find((w) => !DROPPABLE_TAIL.has(w));
-  if (!word || !texts.length) return false;
-  const re = new RegExp(`\\b${word}`, "i");
-  return texts.filter((t) => re.test(t.replace(/[^a-z0-9\s]/gi, ""))).length / texts.length >= 1 / 3;
-}
-
-function sameCompany(a: string, b: string): boolean {
-  const x = normalizeCompany(a);
-  const y = normalizeCompany(b);
-  if (!x || !y) return false;
-  return x === y || x.startsWith(`${y} `) || y.startsWith(`${x} `);
-}
-
-async function getJson<T>(url: string): Promise<T | null> {
-  try {
-    return await http.json<T>(url, { signal });
-  } catch (e) {
-    if (e instanceof HttpError && (e.status === 404 || e.status === 400)) return null;
-    throw e;
-  }
-}
-
-const PROBES: Record<AtsId, (token: string, company: string) => Promise<boolean>> = {
-  async greenhouse(token, company) {
-    const board = await getJson<{ name?: string }>(`https://boards-api.greenhouse.io/v1/boards/${token}`);
-    if (!board?.name || !sameCompany(board.name, company)) return false;
-    const jobs = await getJson<{ jobs: unknown[] }>(
-      `https://boards-api.greenhouse.io/v1/boards/${token}/jobs`,
-    );
-    return (jobs?.jobs.length ?? 0) > 0;
-  },
-  async ashby(token, company) {
-    const board = await getJson<{ jobs: { isListed?: boolean; descriptionPlain?: string }[] }>(
-      `https://api.ashbyhq.com/posting-api/job-board/${token}`,
-    );
-    const listed = board?.jobs.filter((j) => j.isListed !== false) ?? [];
-    return mentionsCompany(
-      listed.map((j) => j.descriptionPlain ?? ""),
-      company,
-    );
-  },
-  async lever(token, company) {
-    const postings = await getJson<{ descriptionPlain?: string; additionalPlain?: string }[]>(
-      `https://api.lever.co/v0/postings/${token}?mode=json`,
-    );
-    return (
-      Array.isArray(postings) &&
-      mentionsCompany(
-        postings.map((p) => `${p.descriptionPlain ?? ""} ${p.additionalPlain ?? ""}`),
-        company,
-      )
-    );
-  },
-};
-
-async function discover(company: string): Promise<CompanyBoard | null> {
-  const slugs = slugCandidates(company);
-  for (const ats of ["greenhouse", "ashby", "lever"] as const) {
-    for (const token of slugs) {
-      if (await PROBES[ats](token, company)) return { name: company, ats, token };
-    }
-  }
-  return null;
-}
 
 async function main() {
+  const http = new Http({ retries: 2 });
+  const signal = new AbortController().signal;
   const companies = readFileSync(join(ROOT, "data", "top_500_companies.csv"), "utf8")
     .split(/\r?\n/)
     .slice(1)
@@ -125,7 +29,7 @@ async function main() {
   const found = await mapPool(unique, 6, async (company) => {
     let board: CompanyBoard | null = null;
     try {
-      board = await discover(company);
+      board = await discoverBoard(http, company, signal);
     } catch (e) {
       console.warn(`  ${company}: ${(e as Error).message}`);
     }
@@ -152,4 +56,4 @@ async function main() {
   );
 }
 
-if (import.meta.main) await main();
+await main();

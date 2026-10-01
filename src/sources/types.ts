@@ -12,8 +12,8 @@ export interface SourceContext {
 
 export interface SourceResult {
   postings: RawPosting[];
-  /** Boards that could not be read this run, so their jobs can be carried forward. */
-  failed: { company: string; error: string }[];
+  /** Boards that could not be read this run (`ats:token`), so their jobs can be carried forward. */
+  failed: { board: string; company: string; error: string }[];
   /** Things worth logging that didn't stop the run, e.g. a board that no longer exists. */
   warnings: string[];
   /** False when nothing could be read at all. */

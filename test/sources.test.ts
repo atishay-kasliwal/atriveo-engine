@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { boardsFor, parseBoardUrl } from "../src/sources/boards.ts";
+import { discoverBoard, mentionsCompany, slugCandidates } from "../src/sources/discover.ts";
 import { Http, HttpError, mapPool } from "../src/sources/http.ts";
 import { SOURCES } from "../src/sources/index.ts";
 import type { SourceContext } from "../src/sources/types.ts";
@@ -67,7 +68,10 @@ describe("greenhouse", () => {
     const result = await SOURCES.greenhouse.fetch(ctx);
     expect(result.postings.length).toBe(2);
     expect(result.warnings).toEqual(['Gone Co: no greenhouse board "gone"']);
-    expect(result.failed).toEqual([{ company: "Flaky", error: `HTTP 503 from ${GH}/flaky/jobs` }]);
+    expect(result.failed).toEqual([
+      { board: "greenhouse:flaky", company: "Flaky", error: `HTTP 503 from ${GH}/flaky/jobs` },
+    ]);
+    expect(result.postings.every((p) => p.board === "greenhouse:northwind")).toBe(true);
     expect(result.ok).toBe(true);
   });
 
@@ -252,5 +256,35 @@ describe("boards", () => {
     const mine: CompanyBoard = { name: "Mine", ats: "lever", token: "Mine" };
     const boards = boardsFor({ companies: [mine, { ...mine, token: "mine" }], useBundledCompanies: false });
     expect(boards).toEqual([mine]);
+  });
+});
+
+describe("discover", () => {
+  test("slug guesses drop punctuation and generic tails", () => {
+    expect(slugCandidates("Scale AI")).toEqual(["scaleai", "scale-ai", "scale"]);
+    expect(slugCandidates("Bill.com")).toEqual(["billcom", "bill-com"]);
+    expect(slugCandidates("Epic Games")).toEqual(["epicgames", "epic-games"]);
+  });
+
+  test("a Greenhouse board must report the company's name", async () => {
+    const { ctx } = context({
+      [`${GH}/acmerobotics`]: { name: "Acme Robotics, Inc.", content: "" },
+      [`${GH}/acmerobotics/jobs`]: fixture("greenhouse-list"),
+      [`${GH}/beta`]: { name: "Somebody Else", content: "" },
+      [`${GH}/beta/jobs`]: fixture("greenhouse-list"),
+    });
+    expect(await discoverBoard(ctx.http, "Acme Robotics", signal)).toEqual({
+      name: "Acme Robotics",
+      ats: "greenhouse",
+      token: "acmerobotics",
+    });
+    expect(await discoverBoard(ctx.http, "Beta", signal)).toBeNull();
+  });
+
+  test("a Lever board must mention the company in its postings", () => {
+    expect(mentionsCompany(["About Contoso: we build", "Contoso is hiring", "Benefits"], "Contoso")).toBe(
+      true,
+    );
+    expect(mentionsCompany(["We build things", "Benefits", "Apply now"], "Contoso")).toBe(false);
   });
 });
