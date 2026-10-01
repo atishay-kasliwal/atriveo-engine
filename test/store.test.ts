@@ -21,6 +21,7 @@ const job = (url: string, score: number, over: Partial<StoredJob> = {}): StoredJ
   score,
   score_pct: score,
   competition_score: 0,
+  board: "",
   ...over,
 });
 

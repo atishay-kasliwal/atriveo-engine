@@ -26,10 +26,14 @@ for any edge case not spelled out here.
 
 | type | Returns |
 |---|---|
-| `hour` | Jobs from the most recent completed run |
-| `today` | Jobs from runs within today (local calendar day), deduplicated by `job_url` |
+| `hour` | Jobs first seen in the most recent completed run (empty when that run found nothing new) |
+| `today` | Open jobs first seen today (local calendar day), highest score first |
 | `yesterday` | Same for yesterday |
-| `week` | Last 7 days, deduplicated keeping each job's first sighting, newest day first, then highest score |
+| `week` | Open jobs first seen in the last 7 days, newest day first, then highest score |
+
+A job is open while the latest completed run still sees it. A source or a
+single company board that fails in a run keeps its jobs open until it answers
+again. `batch_time` is when the job was first seen, so it stays put across runs.
 
 ### Job
 
@@ -41,7 +45,7 @@ for any edge case not spelled out here.
 | `batch_time` | ISO string | **Required.** When the run that found it happened |
 | `session_id` | string | Run id (the run's ISO start time is fine) |
 | `location` | string | May be `""` |
-| `level` | string \| null | `Entry`, `New Grad`, `Mid`, `Senior`, `Staff`, `Principal` |
+| `level` | string \| null | `Intern`, `Entry`, `New Grad`, `Mid`, `Senior`, `Staff`, `Principal` |
 | `score` | number | Raw score |
 | `score_pct` | number | 0–100; the best job in a run is 100 |
 | `summary` | string | One or two sentences |
@@ -58,7 +62,7 @@ The dock drops any row missing `job_url`, `company`, `title`, or a parseable
 
 ## Scrape runs
 
-`POST /scrape/start` → `{"ok": true, "runId": "<id>"}`, or `409 {"ok": false, "error": "already running"}`
+`POST /scrape/start` → `{"ok": true, "runId": "<id>"}`, or `409 {"ok": false, "error": "already running", "runId": "<running id>"}`
 
 `POST /scrape/cancel` → `{"ok": true}`
 
@@ -92,8 +96,22 @@ The dock drops any row missing `job_url`, `company`, `title`, or a parseable
 - `estimate` is the median of recent successful runs; `totalSec: null` until one exists
 - Idle with no run yet: `state = {"runId": null, "status": "idle", "phase": null, "phases": []}`
 
+`GET /scrape/log` → `{"ok": true, "lines": ["greenhouse: 12472 postings from 96 boards", ...]}`, the
+current or last run's progress lines (engine and sidecar both serve it).
+
 The dock polls every 2 s while running and every 30 s when idle, and starts a
 run at :45 past each hour while it's open.
+
+## Settings and companies (engine extensions)
+
+For setup screens. Not served by the Atriveo sidecar.
+
+| Endpoint | Response |
+|---|---|
+| `GET /config` | `{"ok": true, "path": "<config file>", "config": {...}}`, every setting except the token |
+| `PUT /config` | Body: settings to change, e.g. `{"remote": "remote-only", "schedule": {"enabled": true}}`. Objects merge one level deep (`keywords` and `levelScores` are replaced). → `{"ok": true, "config": {...}}`, or `400` listing what's wrong |
+| `GET /companies` | `{"ok": true, "useBundledCompanies": true, "companies": [{"name", "ats", "token", "added"}]}` |
+| `POST /companies` | Body: `{"url": "<Greenhouse, Lever, or Ashby board link>", "name"?: "Acme"}`. Checks the board exists, then adds it → `{"ok": true, "company": {...}, "postings": 42}`; `400` for other links, `404` when there's no such board |
 
 ## Resume endpoints (not in v1)
 
