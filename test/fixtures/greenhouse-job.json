@@ -1,0 +1,21 @@
+{
+  "absolute_url": "https://northwind.example/careers?gh_jid=4001",
+  "data_compliance": [],
+  "internal_job_id": 3001,
+  "location": { "name": "San Francisco, CA" },
+  "metadata": null,
+  "id": 4001,
+  "updated_at": "2026-09-30T12:00:00-04:00",
+  "requisition_id": "ENG-101",
+  "title": "Software Engineer, New Grad ",
+  "company_name": "Northwind Labs",
+  "first_published": "2026-09-30T10:00:00-04:00",
+  "language": "en",
+  "application_deadline": null,
+  "content": "&lt;h2&gt;About the role&lt;/h2&gt;&lt;p&gt;Build REST APIs in Python &amp;amp; Go on AWS.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;0-2 years of experience&lt;/li&gt;&lt;li&gt;Kubernetes a plus&lt;/li&gt;&lt;/ul&gt;",
+  "departments": [{ "id": 11, "name": "Engineering", "child_ids": [], "parent_id": 10 }],
+  "offices": [{ "id": 21, "name": "San Francisco", "location": "San Francisco, CA", "child_ids": [], "parent_id": 20 }],
+  "ai_disclaimer": null,
+  "include_ai_disclaimer": false,
+  "ai_opt_out_request_url": null
+}

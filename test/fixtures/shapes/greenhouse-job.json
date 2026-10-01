@@ -1,0 +1,156 @@
+{
+  "type": "object",
+  "fields": {
+    "absolute_url": {
+      "type": "string"
+    },
+    "data_compliance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "fields": {
+          "type": {
+            "type": "string"
+          },
+          "requires_consent": {
+            "type": "boolean"
+          },
+          "requires_processing_consent": {
+            "type": "boolean"
+          },
+          "requires_retention_consent": {
+            "type": "boolean"
+          },
+          "retention_period": {
+            "type": "null"
+          },
+          "demographic_data_consent_applies": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "education": {
+      "type": "string|undefined"
+    },
+    "internal_job_id": {
+      "type": "number"
+    },
+    "location": {
+      "type": "object",
+      "fields": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "metadata": {
+      "type": "array|null",
+      "items": {
+        "type": "object",
+        "fields": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "array|boolean|string",
+            "items": {
+              "type": "string"
+            }
+          },
+          "value_type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "id": {
+      "type": "number"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "requisition_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "first_published": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "application_deadline": {
+      "type": "null"
+    },
+    "content": {
+      "type": "string"
+    },
+    "departments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "fields": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "child_ids": {
+            "type": "array",
+            "items": {
+              "type": ""
+            }
+          },
+          "parent_id": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "offices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "fields": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "type": "null|string"
+          },
+          "child_ids": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "parent_id": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "ai_disclaimer": {
+      "type": "null"
+    },
+    "include_ai_disclaimer": {
+      "type": "boolean|null"
+    },
+    "ai_opt_out_request_url": {
+      "type": "null|string"
+    }
+  }
+}

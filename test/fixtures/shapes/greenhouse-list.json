@@ -1,0 +1,111 @@
+{
+  "type": "object",
+  "fields": {
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "fields": {
+          "absolute_url": {
+            "type": "string"
+          },
+          "data_compliance": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "fields": {
+                "type": {
+                  "type": "string"
+                },
+                "requires_consent": {
+                  "type": "boolean"
+                },
+                "requires_processing_consent": {
+                  "type": "boolean"
+                },
+                "requires_retention_consent": {
+                  "type": "boolean"
+                },
+                "retention_period": {
+                  "type": "null"
+                },
+                "demographic_data_consent_applies": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "education": {
+            "type": "string|undefined"
+          },
+          "internal_job_id": {
+            "type": "number"
+          },
+          "location": {
+            "type": "object",
+            "fields": {
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "metadata": {
+            "type": "array|null",
+            "items": {
+              "type": "object",
+              "fields": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "array|boolean|null|string",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "value_type": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "id": {
+            "type": "number"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "requisition_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "first_published": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "application_deadline": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "fields": {
+        "total": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

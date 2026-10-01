@@ -1,0 +1,95 @@
+{
+  "type": "object",
+  "fields": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "fields": {
+          "slug": {
+            "type": "string"
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "remote": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "job_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "location": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "fields": {
+        "first": {
+          "type": "string"
+        },
+        "last": {
+          "type": "null"
+        },
+        "prev": {
+          "type": "null"
+        },
+        "next": {
+          "type": "string"
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "fields": {
+        "current_page": {
+          "type": "number"
+        },
+        "current_page_url": {
+          "type": "string"
+        },
+        "from": {
+          "type": "number"
+        },
+        "path": {
+          "type": "string"
+        },
+        "per_page": {
+          "type": "number"
+        },
+        "to": {
+          "type": "number"
+        },
+        "terms": {
+          "type": "string"
+        },
+        "info": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
