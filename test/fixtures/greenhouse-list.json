@@ -1,0 +1,35 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "https://northwind.example/careers?gh_jid=4001",
+      "data_compliance": [],
+      "internal_job_id": 3001,
+      "location": { "name": "San Francisco, CA" },
+      "metadata": null,
+      "id": 4001,
+      "updated_at": "2026-09-30T12:00:00-04:00",
+      "requisition_id": "ENG-101",
+      "title": "Software Engineer, New Grad ",
+      "company_name": "Northwind Labs",
+      "first_published": "2026-09-30T10:00:00-04:00",
+      "language": "en",
+      "application_deadline": null
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/northwind/jobs/4002",
+      "data_compliance": [],
+      "internal_job_id": 3002,
+      "location": { "name": "Remote - US" },
+      "metadata": [],
+      "id": 4002,
+      "updated_at": "2026-09-28T09:30:00-04:00",
+      "requisition_id": "ENG-102",
+      "title": "Senior Backend Engineer",
+      "company_name": "Northwind Labs",
+      "first_published": "2026-09-28T09:30:00-04:00",
+      "language": "en",
+      "application_deadline": null
+    }
+  ],
+  "meta": { "total": 2 }
+}

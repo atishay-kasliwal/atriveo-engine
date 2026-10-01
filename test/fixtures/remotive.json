@@ -1,0 +1,37 @@
+{
+  "00-warning": "Fixture: Remotive returns a notice about its domain here.",
+  "0-legal-notice": "Fixture: Remotive returns its terms here (link back, name Remotive, at most four calls a day).",
+  "job-count": 2,
+  "total-job-count": 2,
+  "jobs": [
+    {
+      "id": 501,
+      "url": "https://remotive.com/remote-jobs/software-dev/backend-engineer-501",
+      "title": "Backend Engineer",
+      "company_name": "Tailspin Toys",
+      "company_logo": "https://remotive.com/job/501/logo",
+      "category": "Software Development",
+      "tags": ["python", "aws"],
+      "job_type": "full_time",
+      "publication_date": "2026-09-30T08:15:00",
+      "candidate_required_location": "USA",
+      "salary": "",
+      "description": "<p>Python &amp; AWS. 2+ years of experience.</p>"
+    },
+    {
+      "id": 502,
+      "url": "https://remotive.com/remote-jobs/software-dev/developer-advocate-502",
+      "title": "Developer",
+      "company_name": "Wide World Importers",
+      "company_logo": "https://remotive.com/job/502/logo",
+      "category": "Software Development",
+      "tags": [],
+      "job_type": "contract",
+      "publication_date": "2026-09-29T20:00:00",
+      "candidate_required_location": "Worldwide",
+      "salary": "",
+      "description": "<p>Write TypeScript.</p>",
+      "company_logo_url": "https://remotive.com/job/502/logo"
+    }
+  ]
+}

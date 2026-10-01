@@ -1,0 +1,116 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "fields": {
+      "additionalPlain": {
+        "type": "string"
+      },
+      "additional": {
+        "type": "string"
+      },
+      "categories": {
+        "type": "object",
+        "fields": {
+          "commitment": {
+            "type": "string|undefined"
+          },
+          "location": {
+            "type": "string"
+          },
+          "team": {
+            "type": "string"
+          },
+          "allLocations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "department": {
+            "type": "string|undefined"
+          },
+          "level": {
+            "type": "string|undefined"
+          }
+        }
+      },
+      "createdAt": {
+        "type": "number"
+      },
+      "descriptionPlain": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "id": {
+        "type": "string"
+      },
+      "lists": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "fields": {
+            "text": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "text": {
+        "type": "string"
+      },
+      "country": {
+        "type": "string"
+      },
+      "workplaceType": {
+        "type": "string"
+      },
+      "opening": {
+        "type": "string"
+      },
+      "openingPlain": {
+        "type": "string"
+      },
+      "descriptionBody": {
+        "type": "string"
+      },
+      "descriptionBodyPlain": {
+        "type": "string"
+      },
+      "hostedUrl": {
+        "type": "string"
+      },
+      "applyUrl": {
+        "type": "string"
+      },
+      "salaryRange": {
+        "type": "object|undefined",
+        "fields": {
+          "currency": {
+            "type": "string"
+          },
+          "interval": {
+            "type": "string"
+          },
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          }
+        }
+      },
+      "salaryDescription": {
+        "type": "string|undefined"
+      },
+      "salaryDescriptionPlain": {
+        "type": "string|undefined"
+      }
+    }
+  }
+}

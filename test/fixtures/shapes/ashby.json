@@ -1,0 +1,113 @@
+{
+  "type": "object",
+  "fields": {
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "fields": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "department": {
+            "type": "string"
+          },
+          "team": {
+            "type": "string"
+          },
+          "employmentType": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "secondaryLocations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "fields": {
+                "location": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "object",
+                  "fields": {
+                    "postalAddress": {
+                      "type": "object",
+                      "fields": {
+                        "addressRegion": {
+                          "type": "string|undefined"
+                        },
+                        "addressCountry": {
+                          "type": "string"
+                        },
+                        "addressLocality": {
+                          "type": "string|undefined"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "publishedAt": {
+            "type": "string"
+          },
+          "isListed": {
+            "type": "boolean"
+          },
+          "isRemote": {
+            "type": "boolean|null"
+          },
+          "workplaceType": {
+            "type": "null|string"
+          },
+          "address": {
+            "type": "object",
+            "fields": {
+              "postalAddress": {
+                "type": "object",
+                "fields": {
+                  "addressRegion": {
+                    "type": "string|undefined"
+                  },
+                  "addressCountry": {
+                    "type": "string|undefined"
+                  },
+                  "addressLocality": {
+                    "type": "string|undefined"
+                  },
+                  "postalCode": {
+                    "type": "string|undefined"
+                  },
+                  "streetAddress": {
+                    "type": "string|undefined"
+                  }
+                }
+              }
+            }
+          },
+          "jobUrl": {
+            "type": "string"
+          },
+          "applyUrl": {
+            "type": "string"
+          },
+          "descriptionHtml": {
+            "type": "string"
+          },
+          "descriptionPlain": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "apiVersion": {
+      "type": "string"
+    }
+  }
+}

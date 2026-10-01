@@ -1,0 +1,49 @@
+[
+  {
+    "additionalPlain": "Contoso sponsors visas for this role.",
+    "additional": "<div>Contoso sponsors visas for this role.</div>",
+    "categories": {
+      "commitment": "Full-time",
+      "department": "Engineering",
+      "location": "New York, NY",
+      "team": "Platform",
+      "allLocations": ["New York, NY", "Remote - US"]
+    },
+    "createdAt": 1790800000000,
+    "descriptionPlain": "Contoso builds payment infrastructure.",
+    "description": "<div>Contoso builds payment infrastructure.</div>",
+    "id": "1111aaaa-0000-4000-8000-000000000001",
+    "lists": [
+      { "text": "What you'll do", "content": "<li>Build services in Python and Kafka</li><li>Own REST APIs</li>" },
+      { "text": "Qualifications", "content": "<li>1+ years of experience</li>" }
+    ],
+    "text": "Backend Engineer",
+    "country": "US",
+    "workplaceType": "hybrid",
+    "opening": "",
+    "openingPlain": "",
+    "descriptionBody": "<div>Contoso builds payment infrastructure.</div>",
+    "descriptionBodyPlain": "Contoso builds payment infrastructure.",
+    "hostedUrl": "https://jobs.lever.co/contoso/1111aaaa-0000-4000-8000-000000000001",
+    "applyUrl": "https://jobs.lever.co/contoso/1111aaaa-0000-4000-8000-000000000001/apply"
+  },
+  {
+    "additionalPlain": "",
+    "additional": "",
+    "categories": { "commitment": "Intern", "location": "Remote", "team": "Data", "allLocations": ["Remote"] },
+    "createdAt": 1790900000000,
+    "descriptionPlain": "Summer internship on the data team.",
+    "description": "<div>Summer internship on the data team.</div>",
+    "id": "2222bbbb-0000-4000-8000-000000000002",
+    "lists": [],
+    "text": "Software Engineer Intern",
+    "country": "US",
+    "workplaceType": "remote",
+    "opening": "",
+    "openingPlain": "",
+    "descriptionBody": "<div>Summer internship on the data team.</div>",
+    "descriptionBodyPlain": "Summer internship on the data team.",
+    "hostedUrl": "https://jobs.lever.co/contoso/2222bbbb-0000-4000-8000-000000000002",
+    "applyUrl": "https://jobs.lever.co/contoso/2222bbbb-0000-4000-8000-000000000002/apply"
+  }
+]

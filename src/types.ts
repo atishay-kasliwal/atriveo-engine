@@ -28,6 +28,8 @@ export interface RawPosting {
   loadDescription?: (signal: AbortSignal) => Promise<string | null>;
   /** Sources whose terms require naming them, e.g. "Remotive". */
   attribution?: string;
+  /** `ats:token` of the company board it came from; absent for aggregators. */
+  board?: string;
 }
 
 /** A job as the HTTP API returns it (docs/API.md). */
