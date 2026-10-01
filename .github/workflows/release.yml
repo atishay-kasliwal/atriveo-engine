@@ -22,7 +22,7 @@ jobs:
       - name: Smoke test Mac binary and verify architectures
         run: |
           dist/atriveo-engine-darwin-universal --version
-          lipo -verify_arch arm64 x86_64 dist/atriveo-engine-darwin-universal
+          lipo dist/atriveo-engine-darwin-universal -verify_arch arm64 x86_64
           dist/atriveo-engine-darwin-universal companies list
       - name: Checksums
         run: cd dist && shasum -a 256 atriveo-engine-* > SHA256SUMS
