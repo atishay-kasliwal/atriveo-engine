@@ -1,0 +1,49 @@
+{
+  "name": "atriveo-engine",
+  "version": "0.1.0",
+  "description": "Local job-search engine: collects postings from public company job boards, filters and scores them, and serves them over a small HTTP API.",
+  "license": "MIT",
+  "author": "Atishay Kasliwal",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atishay-kasliwal/atriveo-engine.git"
+  },
+  "homepage": "https://github.com/atishay-kasliwal/atriveo-engine#readme",
+  "keywords": [
+    "job-search",
+    "jobs",
+    "greenhouse",
+    "lever",
+    "ashby",
+    "h1b",
+    "cli",
+    "local-first"
+  ],
+  "type": "module",
+  "bin": {
+    "atriveo": "src/cli/index.ts"
+  },
+  "files": [
+    "src",
+    "data",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "bun": ">=1.1.0"
+  },
+  "scripts": {
+    "start": "bun src/cli/index.ts serve",
+    "scrape": "bun src/cli/index.ts scrape",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "discover": "bun scripts/discover-companies.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@types/bun": "latest",
+    "typescript": "^5.7.2"
+  }
+}
