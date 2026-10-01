@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   score INTEGER NOT NULL DEFAULT 0,
   score_pct INTEGER NOT NULL DEFAULT 0,
   competition_score INTEGER NOT NULL DEFAULT 0,
+  board TEXT NOT NULL DEFAULT '',
   first_run TEXT NOT NULL,
   last_run TEXT NOT NULL
 );
@@ -73,9 +74,11 @@ export interface StoredJob {
   score: number;
   score_pct: number;
   competition_score: number;
+  /** `ats:token` for company-board jobs, "" for aggregators. */
+  board: string;
 }
 
-interface JobRow extends Omit<StoredJob, "h1b_sponsor" | "sponsorship_blocked"> {
+interface JobRow extends Omit<StoredJob, "h1b_sponsor" | "sponsorship_blocked" | "board"> {
   h1b_sponsor: number;
   sponsorship_blocked: number;
   first_run: string;
@@ -248,16 +251,16 @@ export class Store {
   upsertJobs(runId: string, jobs: StoredJob[]): void {
     const stmt = this.db.query(`
       INSERT INTO jobs (job_url, site, company, title, location, date_posted, summary, search_term, level,
-        min_exp, max_exp, h1b_sponsor, sponsorship_blocked, score, score_pct, competition_score, first_run, last_run)
+        min_exp, max_exp, h1b_sponsor, sponsorship_blocked, score, score_pct, competition_score, board, first_run, last_run)
       VALUES ($job_url, $site, $company, $title, $location, $date_posted, $summary, $search_term, $level,
-        $min_exp, $max_exp, $h1b_sponsor, $sponsorship_blocked, $score, $score_pct, $competition_score, $run, $run)
+        $min_exp, $max_exp, $h1b_sponsor, $sponsorship_blocked, $score, $score_pct, $competition_score, $board, $run, $run)
       ON CONFLICT(job_url) DO UPDATE SET
         site = excluded.site, company = excluded.company, title = excluded.title, location = excluded.location,
         date_posted = excluded.date_posted, summary = excluded.summary, search_term = excluded.search_term,
         level = excluded.level, min_exp = excluded.min_exp, max_exp = excluded.max_exp,
         h1b_sponsor = excluded.h1b_sponsor, sponsorship_blocked = excluded.sponsorship_blocked,
         score = excluded.score, score_pct = excluded.score_pct, competition_score = excluded.competition_score,
-        last_run = excluded.last_run`);
+        board = excluded.board, last_run = excluded.last_run`);
     this.db.transaction(() => {
       for (const j of jobs) {
         stmt.run({
@@ -277,6 +280,7 @@ export class Store {
           $score: j.score,
           $score_pct: j.score_pct,
           $competition_score: j.competition_score,
+          $board: j.board,
           $run: runId,
         });
       }
@@ -290,6 +294,39 @@ export class Store {
     this.db
       .query(`UPDATE jobs SET last_run = ? WHERE last_run = ? AND site IN (${marks})`)
       .run(runId, previousRunId, ...sites);
+  }
+
+  /** Same, for individual company boards (`ats:token`) that failed while the rest of their source worked. */
+  carryForwardBoards(previousRunId: string, runId: string, boards: string[]): void {
+    const update = this.db.query("UPDATE jobs SET last_run = ? WHERE last_run = ? AND board = ?");
+    this.db.transaction(() => {
+      for (const board of boards) update.run(runId, previousRunId, board);
+    })();
+  }
+
+  /** Jobs still open: seen in the latest completed run. */
+  openJobCount(): number {
+    const latest = this.latestCompletedRunId();
+    if (!latest) return 0;
+    return (
+      this.db.query<{ n: number }, [string]>("SELECT COUNT(*) AS n FROM jobs WHERE last_run = ?").get(latest)
+        ?.n ?? 0
+    );
+  }
+
+  /** When the latest completed run finished. */
+  lastRunAt(): string | null {
+    return (
+      this.db
+        .query<{ finished_at: string }, []>(
+          "SELECT finished_at FROM runs WHERE status = 'done' ORDER BY id DESC LIMIT 1",
+        )
+        .get()?.finished_at ?? null
+    );
+  }
+
+  runExists(id: string): boolean {
+    return this.db.query("SELECT 1 FROM runs WHERE id = ?").get(id) !== null;
   }
 
   feed(type: FeedType, now = new Date()): ApiJob[] {
@@ -364,6 +401,10 @@ export class Store {
 
   setKv(key: string, value: string): void {
     this.db.query("INSERT OR REPLACE INTO kv (key, value) VALUES (?, ?)").run(key, value);
+  }
+
+  deleteKv(key: string): void {
+    this.db.query("DELETE FROM kv WHERE key = ?").run(key);
   }
 
   /** Drops jobs closed for a month, stale descriptions and cache, and old run rows. */

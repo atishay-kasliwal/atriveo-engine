@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import type { CompanyBoard, Level, SourceId } from "./types.ts";
+import { type CompanyBoard, type Level, SOURCE_IDS, type SourceId } from "./types.ts";
 
 export interface EngineConfig {
   token: string;
@@ -347,6 +347,17 @@ export function loadConfig(): LoadedConfig {
 
 export function saveConfig(config: EngineConfig): void {
   mkdirSync(engineHome(), { recursive: true });
+  // ATRIVEO_TOKEN (set by an app that launches the engine) applies to this
+  // process only; keep the user's own token in the file.
+  const envToken = process.env.ATRIVEO_TOKEN;
+  if (envToken && config.token === envToken && existsSync(configPath())) {
+    try {
+      const saved = JSON.parse(readFileSync(configPath(), "utf8")) as Partial<EngineConfig>;
+      if (saved.token) config = { ...config, token: saved.token };
+    } catch {
+      // Unreadable file: it's about to be replaced anyway.
+    }
+  }
   // The token guards the API, so keep the file private to this user.
   writeFileSync(configPath(), `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
 }
@@ -374,14 +385,123 @@ const EDITABLE: readonly (keyof EngineConfig)[] = [
   "schedule",
 ];
 
-/** Applies a partial update from the CLI or the API, ignoring unknown keys and the token. */
+const LEVELS: readonly Level[] = ["Intern", "Entry", "New Grad", "Mid", "Senior", "Staff", "Principal"];
+const ATS_IDS = ["greenhouse", "lever", "ashby"];
+
+const kind = (v: unknown) => (v === null ? "null" : Array.isArray(v) ? "array" : typeof v);
+
+/** Problems with a partial config update; empty when it can be applied. */
+export function validateConfigPatch(patch: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  for (const [key, value] of Object.entries(patch)) {
+    if (!(EDITABLE as readonly string[]).includes(key)) {
+      errors.push(`${key}: not a setting (see \`atriveo config get\`)`);
+      continue;
+    }
+    const expected = kind(DEFAULT_CONFIG[key as keyof typeof DEFAULT_CONFIG]);
+    if (kind(value) !== expected) {
+      errors.push(`${key}: expected ${expected === "object" ? "an object" : `a ${expected}`}`);
+      continue;
+    }
+    const list = value as unknown[];
+    const record = value as Record<string, unknown>;
+    switch (key) {
+      case "port":
+        if (!Number.isInteger(value) || (value as number) < 1 || (value as number) > 65535)
+          errors.push("port: 1-65535");
+        break;
+      case "maxYearsExperience":
+      case "maxAgeDays":
+        if ((value as number) < 0) errors.push(`${key}: must not be negative`);
+        break;
+      case "remote":
+        if (value !== "any" && value !== "remote-only") errors.push('remote: "any" or "remote-only"');
+        break;
+      case "levels":
+        for (const l of list)
+          if (!LEVELS.includes(l as Level))
+            errors.push(`levels: "${String(l)}" is not one of ${LEVELS.join(", ")}`);
+        break;
+      case "locations":
+      case "companyExclude":
+      case "bigTech":
+        if (list.some((x) => typeof x !== "string")) errors.push(`${key}: a list of strings`);
+        break;
+      case "roles":
+        for (const k of ["include", "exclude"])
+          if (
+            record[k] !== undefined &&
+            (kind(record[k]) !== "array" || (record[k] as unknown[]).some((x) => typeof x !== "string"))
+          )
+            errors.push(`roles.${k}: a list of strings`);
+        break;
+      case "keywords":
+      case "levelScores":
+        if (Object.values(record).some((x) => typeof x !== "number"))
+          errors.push(`${key}: values must be numbers`);
+        break;
+      case "sources":
+        for (const [id, on] of Object.entries(record)) {
+          if (!(SOURCE_IDS as readonly string[]).includes(id)) errors.push(`sources.${id}: unknown source`);
+          else if (typeof on !== "boolean") errors.push(`sources.${id}: true or false`);
+        }
+        break;
+      case "companies":
+        for (const c of list as Partial<CompanyBoard>[])
+          if (
+            typeof c?.name !== "string" ||
+            typeof c.token !== "string" ||
+            !ATS_IDS.includes(c.ats as string)
+          )
+            errors.push("companies: each needs name, token, and ats (greenhouse, lever, or ashby)");
+        break;
+      case "schedule":
+        if (record.enabled !== undefined && typeof record.enabled !== "boolean")
+          errors.push("schedule.enabled: true or false");
+        if (
+          record.intervalMinutes !== undefined &&
+          (typeof record.intervalMinutes !== "number" || record.intervalMinutes < 15)
+        )
+          errors.push("schedule.intervalMinutes: at least 15");
+        break;
+    }
+  }
+  return errors;
+}
+
+/** Applies a partial update from the CLI or the API. Nested objects merge one level deep. */
 export function applyConfigPatch(config: EngineConfig, patch: Record<string, unknown>): EngineConfig {
-  const next = { ...config };
+  const next = { ...config } as Record<string, unknown>;
   for (const [key, value] of Object.entries(patch)) {
     if (!(EDITABLE as readonly string[]).includes(key)) continue;
-    (next as Record<string, unknown>)[key] = value;
+    const current = next[key];
+    next[key] =
+      kind(current) === "object" && kind(value) === "object" && key !== "keywords" && key !== "levelScores"
+        ? { ...(current as object), ...(value as object) }
+        : value;
   }
-  return next;
+  return next as unknown as EngineConfig;
+}
+
+/**
+ * A patch that sets one possibly nested setting, keeping its siblings:
+ * `schedule.enabled` + `true` → `{ schedule: { ...current, enabled: true } }`.
+ */
+export function patchFromPath(config: EngineConfig, path: string, value: unknown): Record<string, unknown> {
+  const [top, ...rest] = path.split(".").filter(Boolean);
+  if (!top) return {};
+  if (!rest.length) return { [top]: value };
+  const root = structuredClone((config as unknown as Record<string, unknown>)[top] ?? {}) as Record<
+    string,
+    unknown
+  >;
+  let node = root;
+  for (const key of rest.slice(0, -1)) {
+    if (kind(node[key]) !== "object") node[key] = {};
+    node = node[key] as Record<string, unknown>;
+  }
+  node[rest.at(-1) as string] = value;
+  return { [top]: root };
 }
 
 /** The config without its token, safe to return over the API. */
