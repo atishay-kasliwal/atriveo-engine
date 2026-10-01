@@ -14,22 +14,22 @@
 
 ## Phase 1: engine core
 
-- [ ] Source plugins: Greenhouse, Lever, Ashby, Remotive, Arbeitnow, with concurrency limits, retries, response caching, and attribution where a source asks for it
-- [ ] Company → job-board map, built by a discovery script from the top-500 company list and committed as data; `atriveo companies add <careers-url>` for more
-- [ ] Normalize to one job shape; deduplicate across sources and runs
-- [ ] Filters and scoring, ported from [job-pipeline](https://github.com/atishay-kasliwal/job-pipeline): role, seniority, years of experience, location/remote, sponsorship blockers, keyword weights
-- [ ] H-1B sponsor flag and a "sponsors only" option, from the H-1B 2026 sponsor list
-- [ ] SQLite store: runs, jobs, sightings
-- [ ] HTTP API exactly as in [API.md](API.md)
-- [ ] CLI: `atriveo serve`, `atriveo scrape`, `atriveo companies list|add|discover`, `atriveo config`
-- [ ] Tests on recorded fixtures (no live network in CI), plus API contract tests
+- [x] Source plugins: Greenhouse, Lever, Ashby, Remotive, Arbeitnow, with concurrency limits, retries, response caching, and attribution where a source asks for it
+- [x] Company → job-board map, built by a discovery script from the top-500 company list and committed as data; `atriveo companies add <careers-url>` for more
+- [x] Normalize to one job shape; deduplicate across sources and runs
+- [x] Filters and scoring, ported from [job-pipeline](https://github.com/atishay-kasliwal/job-pipeline): role, seniority, years of experience, location/remote, sponsorship blockers, keyword weights
+- [x] H-1B sponsor flag and a "sponsors only" option, from the H-1B 2026 sponsor list
+- [x] SQLite store: runs, jobs, sightings
+- [x] HTTP API exactly as in [API.md](API.md)
+- [x] CLI: `atriveo serve`, `atriveo scrape`, `atriveo companies list|add|discover`, `atriveo config`
+- [x] Tests on recorded fixtures (no live network in CI), plus API contract tests
 
 ## Phase 2: packaging
 
-- [ ] Single binaries: macOS universal, Linux x64/arm64, Windows x64
-- [ ] GitHub Actions: CI on every push; tagged releases with binaries and `SHA256SUMS`
-- [ ] npm package with an `atriveo` bin (`npx atriveo-engine serve`)
-- [ ] README with a terminal demo, quick start, configuration, sources and their terms
+- [x] Single binaries: macOS universal, Linux x64/arm64, Windows x64
+- [x] GitHub Actions: CI on every push; tagged releases with binaries and `SHA256SUMS`
+- [x] npm package with an `atriveo` bin (`npx atriveo-engine serve`)
+- [x] README with a terminal demo, quick start, configuration, sources and their terms
 
 ## Phase 3: Atriveo Dock integration (dock repo)
 

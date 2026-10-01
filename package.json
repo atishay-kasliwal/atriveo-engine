@@ -21,16 +21,17 @@
   ],
   "type": "module",
   "bin": {
-    "atriveo": "src/cli/index.ts"
+    "atriveo": "npm/cli.cjs"
   },
   "files": [
     "src",
     "data",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "npm"
   ],
   "engines": {
-    "bun": ">=1.1.0"
+    "node": ">=18"
   },
   "scripts": {
     "start": "bun src/cli/index.ts serve",
@@ -39,7 +40,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "discover": "bun scripts/discover-companies.ts"
+    "discover": "bun scripts/discover-companies.ts",
+    "build": "bun scripts/build.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0",
